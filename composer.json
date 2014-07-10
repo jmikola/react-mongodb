@@ -1,0 +1,23 @@
+{
+    "name": "jmikola/react-mongodb",
+    "description": "Asynchronous MongoDB client for React PHP.",
+    "keywords": [ "async", "client", "mongodb", "react" ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "ext-mongo": "~1.5",
+        "react/dns": "0.4.*",
+        "react/event-loop": "0.4.*",
+        "react/promise": "~2.0",
+        "react/socket-client": "0.4.*",
+        "react/stream": "0.4.*"
+    },
+    "autoload": {
+        "psr-4": { "Jmikola\\React\\MongoDB\\": "src/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    }
+}
