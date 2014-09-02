@@ -14,6 +14,7 @@ use UnexpectedValueException;
 
 class Connection extends EventEmitter
 {
+    private $ending;
     private $responseParser;
     private $requestId;
     private $requestQueue;
@@ -45,18 +46,26 @@ class Connection extends EventEmitter
         });
     }
 
-    public function send(RequestInterface $requestMessage)
+    public function close()
     {
-        // TODO: Ensure generated request IDs are unique per host until rollover
-        $requestId = ++$this->requestId;
+        $this->ending = true;
 
-        $this->stream->write($requestMessage->getMessageData($requestId));
+        $this->stream->close();
 
-        $deferredRequest = new Request($requestId);
+        // reject all remaining requests in the queue
+        while ( ! $this->requestQueue->isEmpty()) {
+            $request = $this->requestQueue->dequeue();
+            $request->reject(new RuntimeException('Connection closed'));
+        }
+    }
 
-        $this->requestQueue->enqueue($deferredRequest);
+    public function end()
+    {
+        $this->ending = true;
 
-        return $deferredRequest->promise();
+        if ($this->requestQueue->isEmpty()) {
+            $this->close();
+        }
     }
 
     public function handleReply(Reply $reply)
@@ -69,21 +78,32 @@ class Connection extends EventEmitter
 
         $request = $this->requestQueue->dequeue();
 
-        if ($reply->isResponseTo($request->getRequestId())) {
-            throw new UnexpectedValueException(sprintf('Request ID (%d) does not match reply (%id)', $request->getRequestId(), $reply->getResponseTo()));
+        if ( ! $reply->isResponseTo($request->getRequestId())) {
+            throw new UnexpectedValueException(sprintf('Request ID (%d) does not match reply (%d)', $request->getRequestId(), $reply->getResponseTo()));
         }
 
-        $request->handleReply($data);
+        $request->handleReply($reply);
+
+        if ($this->ending && $this->requestQueue->isEmpty()) {
+            $this->close();
+        }
     }
 
-    public function close()
+    public function send(RequestInterface $requestMessage)
     {
-        $this->stream->close();
-
-        // reject all remaining requests in the queue
-        while ( ! $this->requestQueue->isEmpty()) {
-            $request = $this->requestQueue->dequeue();
-            $request->reject(new RuntimeException('Connection closed'));
+        if ($this->ending) {
+            return \React\Promise\reject(new RuntimeException('Connection closed'));
         }
+
+        // TODO: Ensure generated request IDs are unique per host until rollover
+        $requestId = ++$this->requestId;
+
+        $this->stream->write($requestMessage->getMessageData($requestId));
+
+        $deferredRequest = new Request($requestId);
+
+        $this->requestQueue->enqueue($deferredRequest);
+
+        return $deferredRequest->promise();
     }
 }
