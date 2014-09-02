@@ -2,16 +2,18 @@
 
 namespace Jmikola\React\MongoDB\Protocol;
 
+use Jmikola\React\MongoDB\BsonIterator;
 use UnderflowException;
+use IteratorAggregate;
 
-class Reply implements MessageInterface
+class Reply implements IteratorAggregate, MessageInterface
 {
     private $header;
     private $responseFlags;
     private $cursorId;
     private $startingFrom;
     private $numberReturned;
-    private $documents;
+    private $documentsData;
 
     public function __construct($data)
     {
@@ -33,7 +35,7 @@ class Reply implements MessageInterface
 
         $offset += 20;
 
-        $this->documents = substr($data, $offset, $header->getMessageLength() - $offset);
+        $this->documentsData = substr($data, $offset, $header->getMessageLength() - $offset);
     }
 
     public function getCursorId()
@@ -41,9 +43,9 @@ class Reply implements MessageInterface
         return $this->cursorId;
     }
 
-    public function getDocumentsData()
+    public function getIterator()
     {
-        return $this->documents;
+        return new BsonIterator($this->documentsData);
     }
 
     public function getMessageLength()
