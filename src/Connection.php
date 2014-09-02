@@ -7,6 +7,7 @@ use Jmikola\React\MongoDB\Protocol\Reply;
 use Jmikola\React\MongoDB\Protocol\RequestInterface;
 use Jmikola\React\MongoDB\Protocol\ResponseParser;
 use React\Stream\Stream;
+use Exception;
 use RuntimeException;
 use SplQueue;
 use UnderflowException;
@@ -43,6 +44,11 @@ class Connection extends EventEmitter
         $stream->on('close', function() {
             $this->close();
             $this->emit('close');
+        });
+
+        $stream->on('error', function(Exception $e, Stream $stream) {
+            $this->emit('error', [$e, $stream]);
+            $this->close();
         });
     }
 
