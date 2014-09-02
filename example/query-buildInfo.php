@@ -12,33 +12,26 @@ $factory = new ConnectionFactory($loop);
 
 $connection = $factory->create('127.0.0.1', 27017)->then(
     function (Connection $connection) {
-        $query = new Query('admin.$cmd', array('buildInfo' => 1), null, 0, 1);
-
-        $connection->on('message', function(Reply $reply) {
-            printf("# received reply with message length: %d\n", $reply->getMessageLength());
-            // Note: this only works because a single document is returned
-            var_dump(bson_decode($reply->getDocumentsData()));
-        });
-
-        $connection->on('close', function() {
-            printf("# connection closed!\n");
-        });
+        $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
 
         $connection->send($query)->then(
             function(Reply $reply) {
                 printf("# query executed successfully!\n");
+                foreach ($reply as $document) {
+                    var_dump($document);
+                }
             },
             function (Exception $e) {
                 printf("# query error: %s\n", $e->getMessage());
                 printf("%s\n", $e->getTraceAsString());
-                exit(1);
             }
         );
+
+        $connection->end();
     },
     function (Exception $e) {
         printf("# connection error: %s\n", $e->getMessage());
         printf("%s\n", $e->getTraceAsString());
-        exit(1);
     }
 );
 
