@@ -15,12 +15,21 @@ use UnexpectedValueException;
 
 class Connection extends EventEmitter
 {
+    /** @var bool */
     private $ending;
+    /** @var ResponseParser  */
     private $responseParser;
+    /** @var int */
     private $requestId;
+    /** @var SplQueue  */
     private $requestQueue;
+    /** @var Stream  */
     private $stream;
 
+    /**
+     * Connection constructor.
+     * @param Stream $stream
+     */
     public function __construct(Stream $stream)
     {
         $this->requestQueue = new SplQueue();
@@ -74,6 +83,9 @@ class Connection extends EventEmitter
         }
     }
 
+    /**
+     * @param Reply $reply
+     */
     public function handleReply(Reply $reply)
     {
         $this->emit('message', [$reply, $this]);
@@ -95,6 +107,10 @@ class Connection extends EventEmitter
         }
     }
 
+    /**
+     * @param RequestInterface $requestMessage
+     * @return \React\Promise\PromiseInterface
+     */
     public function send(RequestInterface $requestMessage)
     {
         if ($this->ending) {
