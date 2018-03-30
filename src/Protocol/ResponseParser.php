@@ -38,7 +38,7 @@ class ResponseParser
             return null;
         }
 
-        list(,$messageLength) = unpack('V', $this->buffer);
+        list(, $messageLength) = unpack('V', $this->buffer);
 
         if (strlen($this->buffer) < $messageLength) {
             return null;

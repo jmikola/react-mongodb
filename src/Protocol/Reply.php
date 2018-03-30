@@ -3,10 +3,8 @@
 namespace Jmikola\React\MongoDB\Protocol;
 
 use Jmikola\React\MongoDB\BsonIterator;
-use UnderflowException;
-use IteratorAggregate;
 
-class Reply implements IteratorAggregate, MessageInterface
+class Reply implements \IteratorAggregate, MessageInterface
 {
     private $header;
     private $responseFlags;
@@ -21,14 +19,14 @@ class Reply implements IteratorAggregate, MessageInterface
         $offset = MessageInterface::MSG_HEADER_SIZE;
 
         if (strlen($data) !== $header->getMessageLength()) {
-            throw new UnderflowException(sprintf('Reply expected %d bytes; %d given', $header->getMessageLength(), strlen($data)));
+            throw new \UnderflowException(sprintf('Reply expected %d bytes; %d given', $header->getMessageLength(), strlen($data)));
         }
 
         $this->header = $header;
 
         list(
             $this->responseFlags,
-            $cursorId,
+            $this->cursorId,
             $this->startingFrom,
             $this->numberReturned
         ) = array_values(unpack('VresponseFlags/a8cursorId/VstartingFrom/VnumberReturned', substr($data, $offset, 20)));

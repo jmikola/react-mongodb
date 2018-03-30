@@ -6,6 +6,8 @@ interface MessageInterface
 {
     const MSG_HEADER_SIZE = 16;
 
+    const ZERO = 0;
+
     const OP_REPLY = 1;
     const OP_MSG = 1000;
     const OP_UPDATE = 2001;

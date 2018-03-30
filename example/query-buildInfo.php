@@ -15,7 +15,7 @@ $connection = $factory->create('127.0.0.1', 27017)->then(
         $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
 
         $connection->send($query)->then(
-            function(Reply $reply) {
+            function (Reply $reply) {
                 printf("# query executed successfully!\n");
                 foreach ($reply as $document) {
                     var_dump($document);

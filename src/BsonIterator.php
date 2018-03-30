@@ -2,10 +2,7 @@
 
 namespace Jmikola\React\MongoDB;
 
-use Iterator;
-use UnderflowException;
-
-class BsonIterator implements Iterator
+class BsonIterator implements \Iterator
 {
     private $buffer;
     private $bufferOffset = 0;
@@ -56,16 +53,16 @@ class BsonIterator implements Iterator
         }
 
         if ($this->bufferLength - $this->bufferOffset < 5) {
-            throw new UnderflowException(sprintf('Expected at least 5 bytes; %d remaining', $this->bufferLength - $this->bufferOffset));
+            throw new \UnderflowException(sprintf('Expected at least 5 bytes; %d remaining', $this->bufferLength - $this->bufferOffset));
         }
 
-        list(,$documentLength) = unpack('V', substr($this->buffer, $this->bufferOffset, 4));
+        list(, $documentLength) = unpack('V', substr($this->buffer, $this->bufferOffset, 4));
 
         if ($this->bufferLength - $this->bufferOffset < $documentLength) {
-            throw new UnderflowException(sprintf('Expected %d bytes; %d remaining', $documentLength, $this->bufferLength - $this->bufferOffset));
+            throw new \UnderflowException(sprintf('Expected %d bytes; %d remaining', $documentLength, $this->bufferLength - $this->bufferOffset));
         }
 
-        $this->current = bson_decode(substr($this->buffer, $this->bufferOffset, $documentLength));
+        $this->current = \MongoDB\BSON\toPHP(substr($this->buffer, $this->bufferOffset, $documentLength));
         $this->bufferOffset += $documentLength;
     }
 }

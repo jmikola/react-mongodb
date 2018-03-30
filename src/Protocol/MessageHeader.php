@@ -2,9 +2,6 @@
 
 namespace Jmikola\React\MongoDB\Protocol;
 
-use UnderflowException;
-use UnexpectedValueException;
-
 class MessageHeader
 {
     private $messageLength;
@@ -15,7 +12,7 @@ class MessageHeader
     public function __construct($data)
     {
         if (strlen($data) !== MessageInterface::MSG_HEADER_SIZE) {
-            throw new UnderflowException(sprintf('MessageHeader expected %d bytes; %d given', MessageInterface::MSG_HEADER_SIZE, strlen($data)));
+            throw new \UnderflowException(sprintf('MessageHeader expected %d bytes; %d given', MessageInterface::MSG_HEADER_SIZE, strlen($data)));
         }
 
         list(
@@ -37,7 +34,7 @@ class MessageHeader
                 break;
 
             default:
-                throw new UnexpectedValueException(sprintf('Unexpected opCode: %d', $this->opCode));
+                throw new \UnexpectedValueException(sprintf('Unexpected opCode: %d', $this->opCode));
         }
     }
 

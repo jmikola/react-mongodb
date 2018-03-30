@@ -10,7 +10,7 @@ class RequestFactory
     {
         $data = $request->getMessageData();
 
-        $header = pack('V4', Protocol::MSG_HEADER_SIZE + strlen($data), ++$this->requestId, 0, $request->getOpCode());
+        $header = pack('V4', MessageInterface::MSG_HEADER_SIZE + strlen($data), ++$this->requestId, 0, $request->getOpCode());
 
         return $header . $data;
     }

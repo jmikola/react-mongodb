@@ -13,7 +13,7 @@ class GetMore implements RequestInterface
     public function __construct($namespace, $cursorId, $numberToReturn = 0)
     {
         if (strlen($cursorId) !== 8) {
-            throw new InvalidArgumentException(sprintf('Expected 8-byte $cursorId; %d given', strlen($cursorId)));
+            throw new \InvalidArgumentException(sprintf('Expected 8-byte $cursorId; %d given', strlen($cursorId)));
         }
 
         $this->namespace = $namespace;

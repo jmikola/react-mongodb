@@ -2,9 +2,6 @@
 
 namespace Jmikola\React\MongoDB\Protocol;
 
-use InvalidArgumentException;
-use stdClass;
-
 class Query implements RequestInterface
 {
     use RequestTrait;
@@ -19,15 +16,15 @@ class Query implements RequestInterface
     public function __construct($namespace, $query = null, $selector = null, $numberToSkip = 0, $numberToReturn = 0, $flags = 0)
     {
         if ($query !== null && ! is_array($query) && ! is_object($query)) {
-            throw new InvalidArgumentException(sprintf('Expected array or object for $query; %s given', gettype($query)));
+            throw new \InvalidArgumentException(sprintf('Expected array or object for $query; %s given', gettype($query)));
         }
 
         if ($selector !== null && ! is_array($selector) && ! is_object($selector)) {
-            throw new InvalidArgumentException(sprintf('Expected array or object for $selector; %s given', gettype($selector)));
+            throw new \InvalidArgumentException(sprintf('Expected array or object for $selector; %s given', gettype($selector)));
         }
 
         $this->namespace = $namespace;
-        $this->query = $query ?: new stdClass();
+        $this->query = $query ?: new \stdClass();
         $this->selector = $selector ?: null;
         $this->numberToSkip = $numberToSkip;
         $this->numberToReturn = $numberToReturn;
@@ -41,17 +38,27 @@ class Query implements RequestInterface
 
     protected function getMessageDataAfterHeader()
     {
+        /*
+         *
+         * a - Строка (string) с NUL-заполнением
+         * V - беззнаковый long (всегда 32 бит, порядок little endian)
+         *
+         *
+         *
+         * Va*xVVa*
+         */
+
         $data = pack(
             'Va*xVVa*',
             $this->flags,
             $this->namespace,
             $this->numberToSkip,
             $this->numberToReturn,
-            bson_encode($this->query)
+            \MongoDB\BSON\fromPHP($this->query)
         );
 
         if ($this->selector !== null) {
-            $data .= bson_encode($this->selector);
+            $data .= \MongoDB\BSON\fromPHP($this->selector);
         }
 
         return $data;
