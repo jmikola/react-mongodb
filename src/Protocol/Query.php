@@ -38,16 +38,6 @@ class Query implements RequestInterface
 
     protected function getMessageDataAfterHeader()
     {
-        /*
-         *
-         * a - Строка (string) с NUL-заполнением
-         * V - беззнаковый long (всегда 32 бит, порядок little endian)
-         *
-         *
-         *
-         * Va*xVVa*
-         */
-
         $data = pack(
             'Va*xVVa*',
             $this->flags,
